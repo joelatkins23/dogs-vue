@@ -7,12 +7,12 @@
         <div class="sidebar">
             <ul class="nav flex-column">
                <li class="nav-item" v-for="item of dogslist" :key="item.childname+item.name">
-                <a class="nav-link " href="#" v-on:click="getimg(item.childname, item.name)" >{{item.childname}} {{item.name}}</a>
+                <a class="nav-link " href="#" v-on:click="getimg(item.childname, item.name)" >{{item.name}} {{item.childname}} </a>
             </li>
             </ul>
         </div>
-        <div class="content mt-5">
-            <div class="container text-center mt-5">
+        <div class="content">
+            <div class="text-center">
                 <div class="img-content">
                     <img class="image-rsponisve" :src="img" alt="" />
                 </div>
@@ -38,34 +38,50 @@ export default {
         methods: {
             fetchItems()
             {
-              let uri = 'https://dog.ceo/api/breeds/list/all';
-              this.axios.get(uri).then((resp) => {
-                  const dogs = resp.data.message; 
-                    const dogslist=[]; 
-                    Object.keys(dogs).map((key) => {
-                    const item={};
-                    if(dogs[key].length>0){
-                        dogs[key].map((catergoty_dogs) => {  
-                        const itemchild={};
-                        itemchild['name']=key;
-                        itemchild['childname']=catergoty_dogs;
-                        dogslist.push(itemchild);
-                        })
-                    }else{
-                        item['name']=key;
-                        item['childname']='';
-                        dogslist.push(item);
-                    }
-                    } );
-                    this.dogslist=dogslist;  
-              });
+                let uri = 'https://dog.ceo/api/breeds/list/all';
+                fetch(uri)
+                    .then(async resp => {
+                   
+                    const data = await resp.json();
+                    const dogs = data.message; 
+                        const dogslist=[]; 
+                        Object.keys(dogs).map((key) => {
+                        const item={};
+                        if(dogs[key].length>0){
+                            dogs[key].map((catergoty_dogs) => {  
+                            const itemchild={};
+                            itemchild['name']=key;
+                            itemchild['childname']=catergoty_dogs;
+                            dogslist.push(itemchild);
+                            })
+                        }else{
+                            item['name']=key;
+                            item['childname']='';
+                            dogslist.push(item);
+                        }
+                        } );
+                        this.dogslist=dogslist.sort(); 
+                    })
+                    .catch(error => {
+                    this.errorMessage = error;
+                    console.error("There was an error!", error);
+                    });              
+           
             },
             getimg(childname, name){
                 const url=(childname) ? 'https://dog.ceo/api/breed/'+name+'/'+childname+'/images/random': 'https://dog.ceo/api/breed/'+name+'/images/random';
-                this.axios.get(url).then((resp) => {
-                    this.img= resp.data.message; 
+               
+                 fetch(url)
+                    .then(async resp => {                   
+                    const data = await resp.json();
+                     this.img= data.message; 
                     this.name=childname+' '+name;
-                });
+                    })
+                    .catch(error => {
+                    this.errorMessage = error;
+                    console.error("There was an error!", error);
+                    });
+              
             }
         }
 }
@@ -91,6 +107,7 @@ export default {
 
 .nav-item {
     border-bottom: 1px solid #fff;
+    background: -webkit-gradient(linear, left top, left bottom, from(#b3a5a5), to(#eee), color-stop(0.75, #eee));
 }
 
 .nav-item a {
@@ -100,10 +117,11 @@ export default {
 .content {
     width: calc(100% - 200px);
     float: left;
+     margin-top: 50px;
 }
 
 .img-content img {
-    width: 500px;
+    width: 100%;
 }
 
 .nav-link:hover {
