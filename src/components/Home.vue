@@ -6,9 +6,9 @@
         </div>
         <div class="sidebar">
             <ul class="nav flex-column">
-               <li class="nav-item" v-for="item of dogslist" :key="item.childname+item.name">
-                <a class="nav-link " href="#" v-on:click="getimg(item.childname, item.name)" >{{item.name}} {{item.childname}} </a>
-            </li>
+               <li class="nav-item" v-for="(item, index) of dogslist" :key="item.childname+item.name" :class="{ 'active': activeIndex === index }" v-on:click="getimg(item.childname, item.name,index)">
+                    <a class="nav-link " href="#"  >{{item.name}} {{item.childname}} </a>
+                </li>
             </ul>
         </div>
         <div class="content">
@@ -26,7 +26,8 @@ export default {
             return{
                 dogslist: [],
                 name:'Dogs',
-                img:''
+                img:'',                
+                activeIndex: undefined
             }
         },
 
@@ -68,7 +69,7 @@ export default {
                     });              
            
             },
-            getimg(childname, name){
+            getimg(childname, name, index){
                 const url=(childname) ? 'https://dog.ceo/api/breed/'+name+'/'+childname+'/images/random': 'https://dog.ceo/api/breed/'+name+'/images/random';
                
                  fetch(url)
@@ -76,6 +77,7 @@ export default {
                     const data = await resp.json();
                      this.img= data.message; 
                     this.name=childname+' '+name;
+                    this.activeIndex=index;
                     })
                     .catch(error => {
                     this.errorMessage = error;
@@ -119,7 +121,15 @@ export default {
     float: left;
      margin-top: 50px;
 }
+.active{
+  
+    color: white;
+    background: -webkit-gradient(linear, left top, left bottom, from(#333), to(#333), color-stop(0.75, #444));
 
+}
+.active a{
+    color:white;
+}
 .img-content img {
     width: 100%;
 }
